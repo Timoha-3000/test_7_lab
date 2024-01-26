@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 using System;
 using TechTalk.SpecFlow;
 
@@ -39,7 +40,7 @@ namespace test_7_lab.StepDefinitions
         [Then(@"I should see the search results for ""(.*)""")]
         public void ThenIShouldSeeTheSearchResultsFor(string searchText)
         {
-            _wait.Until(d => d.FindElement(By.Id("firstHeading")).Displayed);
+            _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("firstHeading")));
             Assert.Contains(searchText, _driver.PageSource);
         }
 
@@ -56,8 +57,23 @@ namespace test_7_lab.StepDefinitions
             Assert.Equal("https://www.wikipedia.org/", _driver.Url);
         }
 
+        [Then(@"I should see autocomplete suggestions related to ""(.*)""")]
+        public void ThenIShouldSeeAutocompleteSuggestionsRelatedTo(string searchText)
+        {
+            var autocompleteSuggestions = _driver.FindElement(By.ClassName("suggestions-result"));
+            Assert.True(autocompleteSuggestions.Displayed);
+            Assert.Contains(searchText, autocompleteSuggestions.Text);
+        }
+
+        [When(@"I click on the first link in the search results")]
+        public void WhenIClickOnTheFirstLinkInTheSearchResults()
+        {
+            var firstResultLink = _driver.FindElement(By.CssSelector(".mw-search-results .mw-search-result a"));
+            firstResultLink.Click();
+        }
+
         [AfterScenario]
-        public void DisposeWebDriver()
+        public void AfterScenario()
         {
             _driver.Quit();
         }
